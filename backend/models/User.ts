@@ -34,6 +34,11 @@ const UserSchema = new mongoose.Schema<
         required: true,
         type: String,
     },
+    status: {
+        required: true,
+        type: Boolean,
+        default: false,
+    },
     token: {
         required: true,
         type: String,

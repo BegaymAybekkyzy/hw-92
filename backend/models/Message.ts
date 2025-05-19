@@ -4,6 +4,7 @@ const MessageSchema = new mongoose.Schema({
     user: {
         required: true,
         type: Types.ObjectId,
+        ref: 'User'
     },
     text: {
         required: true,
