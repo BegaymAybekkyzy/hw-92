@@ -1,35 +1,33 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import AppToolbar from "./components/UI/AppToolbar/AppToolbar";
+import {Container, Typography} from "@mui/material";
+import {Route, Routes} from "react-router-dom";
+import Authentication from "./features/User/Authentication.tsx";
+import Registration from "./features/User/Registration.tsx";
+import {useAppSelector} from "./app/hooks.ts";
+import {selectUser} from "./features/User/usersSlice.ts";
+import ProtectedRoute from "./components/UI/ProtectedRoute/ProtectedRoute.tsx";
+import Chat from "./features/Messages/Chat.tsx";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+    const user = useAppSelector(selectUser);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <header>
+        <AppToolbar/>
+      </header>
+      <Container style={{marginBottom: 70}}>
+        <Routes>
+          <Route path="/registration" element={<Registration/>}/>
+          <Route path="/" element={
+            <ProtectedRoute isAllowed={Boolean(user)}><Chat/></ProtectedRoute>
+          }/>
+          <Route path="/login" element={<Authentication/>}/>
+          <Route path="*" element={<Typography variant={"h3"} color="textSecondary">Page not found</Typography>}/>
+        </Routes>
+      </Container>
     </>
   )
-}
+};
 
 export default App
