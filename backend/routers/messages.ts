@@ -30,8 +30,8 @@ export const registerMessageWs = () => {
                 return;
             }
 
-            const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-            const user = await User.findOne({_id: decoded.id, token });
+            const decoded = jwt.verify(token, JWT_SECRET) as { _id: string };
+            const user = await User.findOne({_id: decoded._id, token });
 
             if (!user) {
                 ws.send(JSON.stringify({ error: "Unauthorized" }));
@@ -72,6 +72,8 @@ export const registerMessageWs = () => {
                         });
 
                         await newMessage.save();
+
+                        await newMessage.populate('user', 'username');
 
                         const response = {
                             type: "NEW_MESSAGE",

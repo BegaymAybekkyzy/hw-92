@@ -17,6 +17,10 @@ const ARGON2_OPTIONS = {
     parallelism: 1,
 };
 
+export const generateTokenJWT = (user: HydratedDocument<IUser>) => {
+    return jwt.sign({_id: user._id}, JWT_SECRET, { expiresIn: "30d" })
+}
+
 export const JWT_SECRET = process.env.JWT_SECRET || "default_fallback_secret";
 
 const UserSchema = new mongoose.Schema<
@@ -62,7 +66,7 @@ UserSchema.methods.comparePassword = async function (password: string) {
 };
 
 UserSchema.methods.generateToken = function () {
-    this.token = jwt.sign({id: this._id}, JWT_SECRET, {expiresIn: "365d"});
+    this.token = generateTokenJWT(this);
 }
 
 const User = mongoose.model("User", UserSchema);

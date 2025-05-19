@@ -6,6 +6,13 @@ const userRouter = expressRouter();
 
 userRouter.post("/", async (req, res, next) => {
     try {
+        const existingUser = await User.findOne({username: req.body.username});
+
+        if (existingUser) {
+            res.status(400).send({error: `The user '${req.body.username}' already exists`});
+            return;
+        }
+
         const newUser = new User({
             username: req.body.username,
             password: req.body.password,
@@ -68,7 +75,6 @@ userRouter.post('/sessions', async (req, res, _next) => {
     const safeUser = {
         _id: user._id,
         username: user.username,
-        token: user.token
     };
 
     res.send({message: 'Username and password is correct', user: safeUser});
@@ -76,10 +82,33 @@ userRouter.post('/sessions', async (req, res, _next) => {
 
 userRouter.get('/', async (_req, res, next) => {
     try {
-        const users = await User.find({status: true});
+        const users = await User.find({status: true}).select("-token");
         res.send(users);
     } catch (error) {
         next(error);
+    }
+});
+
+userRouter.delete('/sessions', async (req, res, next) => {
+    try {
+        const token = req.cookies.token;
+
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+        });
+
+        const user = await User.findOne({token});
+
+        if (user) {
+            user.generateToken();
+            await user.save();
+        }
+
+        res.send({message: 'Logout successful'});
+    } catch (e) {
+        next(e);
     }
 });
 
