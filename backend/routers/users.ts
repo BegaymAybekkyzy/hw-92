@@ -74,4 +74,13 @@ userRouter.post('/sessions', async (req, res, _next) => {
     res.send({message: 'Username and password is correct', user: safeUser});
 });
 
+userRouter.get('/', async (_req, res, next) => {
+    try {
+        const users = await User.find({status: true});
+        res.send(users);
+    } catch (error) {
+        next(error);
+    }
+});
+
 export default userRouter;
