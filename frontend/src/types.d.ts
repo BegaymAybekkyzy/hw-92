@@ -1,6 +1,7 @@
 export interface IUserApi {
     _id: string;
     username: string;
+    status: boolean;
 }
 
 export interface IUserForm {
