@@ -34,22 +34,26 @@ const AppToolbar = () => {
                             >Welcome <b>{user.username}!</b></Typography>
                             <Button
                                 sx={{color: "white"}}
-                                component={NavLink} to="/login"
+                                component={NavLink}
+                                to="/login"
                                 onClick={onLogout}
                             >Logout
                             </Button>
-                            </Box>
+                        </Box>
                         : <Box>
-                            <NavLink
-                                className="nav-item text-white"
+                            <Button
+                                sx={{color: "white"}}
+                                component={NavLink}
                                 to="/registration"
-                            >Registration</NavLink>
-                            <span className="mx-2">or</span>
-                            <NavLink
-                                className="nav-item text-white"
+                            >Registration
+                            </Button>
+                            <Button
+                                sx={{color: "white"}}
+                                component={NavLink}
                                 to="/login"
-                            >Login</NavLink>
-                            </Box>
+                            >Login
+                            </Button>
+                        </Box>
                     }
                 </Grid>
             </Toolbar>

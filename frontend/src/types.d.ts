@@ -23,3 +23,11 @@ export interface IValidationError {
 export interface IErrorMessage {
     error: string;
 }
+
+export interface IMessageApi {
+    _id: string;
+    user: IUserApi;
+    text: string;
+    datetime: string;
+}
+
