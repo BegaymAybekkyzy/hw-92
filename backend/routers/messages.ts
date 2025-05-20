@@ -8,6 +8,20 @@ import User, { JWT_SECRET } from "../models/User";
 const messageRouter = Router();
 const connectedClients: WebSocket[] = [];
 
+const onlineUsers = async () => {
+    const users = await User.find({ status: true }).select("-token");
+    const message = JSON.stringify({
+        type: "ONLINE_USERS",
+        payload: users,
+    });
+
+    connectedClients.forEach(client => {
+        if (client.readyState === client.OPEN) {
+            client.send(message);
+        }
+    });
+};
+
 export const registerMessageWs = () => {
     messageRouter.ws('/', async (ws, req) => {
         try {
@@ -41,6 +55,7 @@ export const registerMessageWs = () => {
 
             user.status = true
             await user.save();
+            await onlineUsers();
             console.log('Client connected');
 
             connectedClients.push(ws);
@@ -97,6 +112,7 @@ export const registerMessageWs = () => {
                 console.log(`User ${user.username} disconnected`);
                 user.status = false;
                 await user.save();
+                await onlineUsers();
             });
 
         } catch (err) {
