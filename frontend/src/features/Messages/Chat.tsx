@@ -16,7 +16,10 @@ const Chat = () => {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
+        let reconnectTimeout: NodeJS.Timeout;
         ws.current = new WebSocket("ws://" + BASE_URL + "/messages");
+
+        ws.current.onopen = () => console.log("Connection opened");
 
         ws.current.onmessage = (event) => {
             const message = JSON.parse(event.data);
@@ -29,7 +32,24 @@ const Chat = () => {
                 setMessages((prev) => [...message.payload, ...prev]);
             }
         };
-        ws.current.onclose = () => console.log("Connection closed");
+
+        ws.current.onclose = () => {
+            console.log("Connection closed")
+            reconnectTimeout = setTimeout(() => {
+                ws.current = new WebSocket("ws://" + BASE_URL + "/messages");
+            }, 3000);
+        };
+
+        ws.current.onerror = (error) => {
+            console.error( error);
+            ws.current?.close();
+        };
+
+        return () => {
+            clearTimeout(reconnectTimeout);
+            ws.current?.close();
+        };
+
     }, [dispatch]);
 
     const sendMessage = () => {
