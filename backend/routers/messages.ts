@@ -55,10 +55,10 @@ export const registerMessageWs = () => {
 
             user.status = true
             await user.save();
-            await onlineUsers();
             console.log('Client connected');
 
             connectedClients.push(ws);
+            await onlineUsers();
 
             const allMessages = await Message.find()
                 .sort({datetime: -1})
