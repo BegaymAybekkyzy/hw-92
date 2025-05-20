@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {authentication, registration, fetchUsersOnline} from './userThunks.ts';
+import {authentication, registration} from './userThunks.ts';
 import type {RootState} from "../../app/store.ts";
 import type {IErrorMessage, IUserApi, IValidationError} from "../../types";
 
@@ -25,7 +25,7 @@ const initialState: userState = {
 };
 
 export const selectUser = (state: RootState) => state.users.user;
-export const selectUserOnline = (state: RootState) => state.users.userOnlineList;
+export const selectUsersOnline = (state: RootState) => state.users.userOnlineList;
 export const selectRegistrationErrors = (state: RootState) =>
     state.users.registrationErrors;
 export const selectAuthenticationErrors = (state: RootState) =>
@@ -42,6 +42,9 @@ export const usersSlice = createSlice({
         systemLogout: (state) => {
             state.user = null;
         },
+        setOnlineUsers: (state, {payload: users}) => {
+            state.userOnlineList = users;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -57,17 +60,6 @@ export const usersSlice = createSlice({
             .addCase(registration.rejected, (state, {payload: error}) => {
                 state.registrationLoading = false;
                 state.registrationErrors = error || null;
-            })
-
-            .addCase(fetchUsersOnline.pending, (state) => {
-                state.listLoading = true;
-            })
-            .addCase(fetchUsersOnline.fulfilled, (state, {payload: user}) => {
-                state.listLoading = false;
-                state.userOnlineList = user;
-            })
-            .addCase(fetchUsersOnline.rejected, (state) => {
-                state.listLoading = false;
             })
 
             .addCase(authentication.pending, (state) => {
@@ -87,4 +79,4 @@ export const usersSlice = createSlice({
 });
 
 export const userReducer = usersSlice.reducer;
-export const {systemLogout} = usersSlice.actions;
+export const {systemLogout, setOnlineUsers} = usersSlice.actions;

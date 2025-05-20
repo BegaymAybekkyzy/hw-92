@@ -2,27 +2,31 @@ import {useEffect, useRef, useState} from 'react';
 import {BASE_URL} from "../../globalConstants.ts";
 import {Box, Button, Grid, TextField, Typography} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "../../app/hooks.ts";
-import {selectUserOnline} from "../User/usersSlice.ts";
-import {fetchUsersOnline} from "../User/userThunks.ts";
 import type {IMessageApi} from "../../types";
 import dayjs from "dayjs";
+import {selectUsersOnline, setOnlineUsers} from "../User/usersSlice.ts";
+import PersonIcon from '@mui/icons-material/Person';
 
 const Chat = () => {
     const ws = useRef<WebSocket | null>(null);
     const [text, setText] = useState("");
     const [messages, setMessages] = useState<IMessageApi[]>([]);
+    const onlineUsers = useAppSelector(selectUsersOnline);
 
-    const onlineUsers = useAppSelector(selectUserOnline);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        dispatch(fetchUsersOnline());
-
         ws.current = new WebSocket("ws://" + BASE_URL + "/messages");
+
         ws.current.onmessage = (event) => {
             const message = JSON.parse(event.data);
+
+            if (message.type === "ONLINE_USERS") {
+                dispatch(setOnlineUsers(message.payload));
+            }
+
             if (message.type === "NEW_MESSAGE") {
-                setMessages((prev) => [...prev, ...message.payload]);
+                setMessages((prev) => [...message.payload, ...prev]);
             }
         };
         ws.current.onclose = () => console.log("Connection closed");
@@ -43,35 +47,37 @@ const Chat = () => {
         <main>
             <Grid container spacing={3}>
                 <Grid
-                    size={4}
+                    size={3}
                     border="1px solid black"
                     borderRadius={2}
                     height="80vh"
                     padding={2}
                 >
-                    <Typography variant="h4">Online users</Typography>
+                    <Typography variant="h5">Online users</Typography>
                     <hr/>
-                    <Box display="flex" flexDirection="column">
+                    <Box display="flex" flexDirection="column" gap={1}>
                         {onlineUsers
                             .map((user) => (
-                                <Typography
-                                    key={user._id}
-                                    fontSize={20}
-                                >{user.username}</Typography>
+                                <Box
+                                    key={user._id} display="flex" alignItems="center" gap={1}>
+                                    <PersonIcon fontSize="small" />
+                                    <Typography fontSize={18}>{user.username}</Typography>
+                                </Box>
                             ))
                         }
                     </Box>
                 </Grid>
                 <Grid
-                    size={8}
+                    size={9}
                     padding={2}
+                    height="80vh"
                     border="1px solid black"
                     borderRadius={2}
                 >
-                    <Typography variant="h4">Chat room</Typography>
+                    <Typography variant="h5">Chat room</Typography>
                     <hr/>
 
-                    <Box mb={4} height="60vh" overflow="auto">
+                    <Box mb={4} height="58vh" overflow="auto">
                         {messages.map((message) => (
                             <Box
                                 key={message._id}
@@ -98,25 +104,31 @@ const Chat = () => {
                             </Box>
                         ))}
                     </Box>
-
-
+                    <hr style={{marginBottom: 20}}/>
                     <form>
-                        <Grid container alignItems="center">
-                            <Grid size={10}>
+                        <Grid
+                            container
+                            spacing={2}
+                            alignItems="center"
+                            justifyContent="center"
+                        ><Grid size={10}>
                                 <TextField
                                     fullWidth
-                                    // disabled={loading}
+                                    label="Enter a message"
                                     onChange={(e) => setText(e.target.value)}
                                     variant="outlined"
                                 />
                             </Grid>
 
                             <Grid size={2}>
-                                <Button onClick={sendMessage}>Send</Button>
+                                <Button
+                                    variant="contained"
+                                    onClick={sendMessage}
+                                    sx={{backgroundColor: "#aa73dc"}}
+                                >Send</Button>
                             </Grid>
                         </Grid>
                     </form>
-
                 </Grid>
             </Grid>
         </main>

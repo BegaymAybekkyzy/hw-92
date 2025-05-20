@@ -40,15 +40,6 @@ export const authentication = createAsyncThunk<
   }
 });
 
-export const fetchUsersOnline = createAsyncThunk<IUserApi[]>(
-    "user/userOnline",
-    async () => {
-      const response = await axiosAPI("users");
-      return response.data;
-    }
-);
-
-
 export const logout = createAsyncThunk<void, void>("users/logout", async () => {
   await axiosAPI.delete("users/sessions", {withCredentials: true});
 });
